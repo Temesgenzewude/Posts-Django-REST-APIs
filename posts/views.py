@@ -12,6 +12,15 @@ from.serializers import PostSerializer
 from django.shortcuts import get_object_or_404
 from .permissions import IsLoggedIn, IsOwner, IsAdmin, ReadOnly
 
+from rest_framework.pagination import PageNumberPagination
+
+
+class CustomPaginator(PageNumberPagination):
+    page_size = 1
+    page_size_query_param = 'page_size'
+    page_query_param = 'page'
+ 
+
 
 
 
@@ -124,6 +133,7 @@ class PostRetrieveUpdateDeleteClassBasedAPIView(APIView):
     """class based view for getting details, updating and deleting post """
     serializer_class = PostSerializer
     permission_classes=[ IsLoggedIn, IsOwner]
+    pagination_class=CustomPaginator
     def get(self, request:Request, id:int ,*args, **kwargs):
         post = get_object_or_404(Post, pk=id)
 
@@ -191,6 +201,7 @@ class PostListCreatGenericAPIViews(generics.GenericAPIView, mixins.ListModelMixi
     serializer_class = PostSerializer
     permission_classes=[ IsLoggedIn]
     queryset = Post.objects.all()
+    pagination_class=[]
 
     def get(self, request:Request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
@@ -292,6 +303,7 @@ class ListPostsForAuthor(generics.ListAPIView,mixins.ListModelMixin):
     queryset= Post.objects.all()
     serializer_class = PostSerializer
     permission_classes=[ IsLoggedIn, IsOwner]
+    pagination_class=CustomPaginator
     
     
     def get_queryset(self):
