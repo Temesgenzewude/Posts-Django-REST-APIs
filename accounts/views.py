@@ -9,6 +9,7 @@ from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
 from django.shortcuts import get_object_or_404
 from .models import User
 from django.core.exceptions import ObjectDoesNotExist
+from drf_yasg.utils import swagger_auto_schema
 
 
 # Create your views here.
@@ -18,6 +19,9 @@ class UserSignUpAPIView(generics.GenericAPIView):
     serializer_class = UserSignUpSerializer
     permission_classes=[]
 
+    @swagger_auto_schema(
+        operation_summary="Create a new user",
+        operation_description="This endpoint allows you to create a new user",)   
     def post(self, request:Request):
         data= request.data
         serializer = self.serializer_class(data= data)
@@ -36,6 +40,9 @@ class UserLoginAPIView(generics.GenericAPIView):
 
     permission_classes=[]
 
+    @swagger_auto_schema(
+        operation_summary="Login a user",
+        operation_description="This endpoint allows you to login a user",)   
     def post(self, request:Request):
         email= request.data.get('email')
         password= request.data.get('password')
@@ -67,8 +74,8 @@ class UserLoginAPIView(generics.GenericAPIView):
 
         refresh_token= RefreshToken.for_user(user)
 
-        print("Refresh token is " + str(refresh_token))
-        print("Access token is " + str(refresh_token.access_token))
+        # print("Refresh token is " + str(refresh_token))
+        # print("Access token is " + str(refresh_token.access_token))
         
 
         if refresh_token is not None:
@@ -90,14 +97,6 @@ class UserLoginAPIView(generics.GenericAPIView):
         else:
             return Response(data= {'message': 'Invalid credentials provided!'}, status=status.HTTP_400_BAD_REQUEST)
 
-    def get(self, request:Request):
-
-        contents={
-            "user": str(request.user),
-            "auth_token": str(request.auth)
-
-        }
-
-        return Response(data= contents, status=status.HTTP_200_OK)
+   
         
     

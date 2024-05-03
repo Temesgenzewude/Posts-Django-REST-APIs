@@ -13,6 +13,7 @@ from django.shortcuts import get_object_or_404
 from .permissions import IsLoggedIn, IsOwner, IsAdmin, ReadOnly
 
 from rest_framework.pagination import PageNumberPagination
+from drf_yasg.utils import swagger_auto_schema
 
 
 class CustomPaginator(PageNumberPagination):
@@ -29,6 +30,8 @@ def index(request:HttpRequest):
     return JsonResponse({'message':'Hello, World!'})
 
 @api_view(http_method_names= ['GET'])
+
+@swagger_auto_schema(operation_summary="Home Page", operation_description="This is the home page of the API")
 def homePage(request:Request):
     return Response(data= {'message':'Home page!'}, status=status.HTTP_200_OK)
 
@@ -134,6 +137,9 @@ class PostRetrieveUpdateDeleteClassBasedAPIView(APIView):
     serializer_class = PostSerializer
     permission_classes=[ IsLoggedIn, IsOwner]
     pagination_class=CustomPaginator
+    @swagger_auto_schema(
+        operation_summary="Get Post Details",
+        operation_description="This endpoint will retrieve the details of a post by id")   
     def get(self, request:Request, id:int ,*args, **kwargs):
         post = get_object_or_404(Post, pk=id)
 
@@ -158,6 +164,10 @@ class PostRetrieveUpdateDeleteClassBasedAPIView(APIView):
             'post': data,
         }
         return Response(data= response, status=status.HTTP_200_OK)
+    
+    @swagger_auto_schema(
+        operation_summary="Update Post",
+        operation_description="This endpoint will update the details of a post by id")   
 
     def put(self, request:Request, id:int, *args, **kwargs):
         post = get_object_or_404(Post, pk=id)
@@ -187,6 +197,10 @@ class PostRetrieveUpdateDeleteClassBasedAPIView(APIView):
             return Response(data=response, status=status.HTTP_200_OK)
         else:
             return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+     
+    @swagger_auto_schema(
+        operation_summary="Delete Post",
+        operation_description="This endpoint will delete a post by id")      
 
     def delete(self, request:Request, id:int, *args, **kwargs):
         post = get_object_or_404(Post, pk=id)
@@ -201,11 +215,18 @@ class PostListCreatGenericAPIViews(generics.GenericAPIView, mixins.ListModelMixi
     serializer_class = PostSerializer
     permission_classes=[ IsLoggedIn]
     queryset = Post.objects.all()
-    pagination_class=[]
+    
+    pagination_class= CustomPaginator
+   
 
+    @swagger_auto_schema(
+        operation_summary="List of Posts",
+        operation_description="This endpoint returns a list of posts for logged in user")
     def get(self, request:Request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
-    
+    @swagger_auto_schema(
+        operation_summary="Create Post",
+        operation_description="This endpoint creates a post for the logged in user")    
     def post(self, request:Request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -222,6 +243,7 @@ class PostRetrieveUpdateDeleteGenericAPIView(generics.GenericAPIView, mixins.Ret
     permission_classes=[ IsLoggedIn, IsOwner]
     queryset = Post.objects.all()
 
+   
     def get(self, request:Request, *args, **kwargs):
         return self.retrieve(request, *args, **kwargs)
     
@@ -306,6 +328,10 @@ class ListPostsForAuthor(generics.ListAPIView,mixins.ListModelMixin):
     pagination_class=CustomPaginator
     
     
+    
+    @swagger_auto_schema(
+        operation_summary="Filter posts",
+        operation_description="This endpoint will filter the posts for the given parameters, Author, title or content")   
     def get_queryset(self):
         
         

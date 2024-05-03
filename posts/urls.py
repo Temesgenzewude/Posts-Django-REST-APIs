@@ -4,7 +4,7 @@ from django.urls import path
 
 urlpatterns = [
   
-    path('home', views.homePage, name='home'),
+    # path('home', views.homePage, name='home'),
     
     path('', views.PostListCreatGenericAPIViews.as_view(), name='posts'),
     path('<int:id>/', views.PostRetrieveUpdateDeleteClassBasedAPIView.as_view(), name='post-details'),
